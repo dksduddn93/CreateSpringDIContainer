@@ -1,0 +1,22 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.4'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java' // java compile
+}
+
+group = 'com.electronic.cat'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+// submodule의 src/test안에 있는 test class를 찾아서 돌려주는 plugin
+tasks.named('test') {
+    useJUnitPlatform()
+}
