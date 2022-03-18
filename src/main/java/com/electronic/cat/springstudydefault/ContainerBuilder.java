@@ -1,30 +1,33 @@
 package com.electronic.cat.springstudydefault;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Properties;
 
 public class ContainerBuilder {
 
     public void aa() throws ClassNotFoundException {
-        // package 하위에 있는 class를 찾는 코드 작성
-        // guava
-        // [ ] ClassLoader로 package 하위의 모든 class를 런타임에서 가져오기
-        // 아래 코드를 좀 더 일반적인 코드로 추상화하기 ClassLoader
-        // java의 package는 directoryName
-        // package . => /
-        ClassLoader.getSystemClassLoader().getResourceAsStream("packageName")
-                // 파일을 읽은 다음에
-        // class를 찾아아됨
-        Class<?> testClass = Class.forName("com.electronic.cat.springstudydefault.TestClass");
 
-        // Test Class도생성 injected test 클래스도 생성
 
         try {
+
+            /*
+            *
+            * */
+
+            // class를 찾아아됨
+            Class<?> testClass = Class.forName("com.electronic.cat.springstudydefault.TestClass");
+
+            // Test Class도생성 injected test 클래스도 생성
+
+
             // 자바 런타임에서 객체 생성
             Constructor<?> testConstructor = testClass.getConstructor();
             System.out.println("Class.forName : " + testConstructor.getName());
@@ -38,6 +41,11 @@ public class ContainerBuilder {
             if ( first.isPresent()) {
                 first.get().invoke(node);
             }
+
+            /*
+            *
+            *
+            * */
 
             // InjectedTestClass 탐색
             Class<?> injectedTestClass = Class.forName("com.electronic.cat.springstudydefault.InjectedTestClass");
@@ -56,6 +64,35 @@ public class ContainerBuilder {
                 first2.get().invoke(node2);
             }
 
+            /*
+            * 클래스 로더
+            *
+            * 1. 클래스 로더로 패키지 하위의 클래스 목록 취득
+            * 2.
+            * */
+
+            // package 하위에 있는 class를 찾는 코드 작성
+            // guava
+            // [ ] ClassLoader로 package 하위의 모든 class를 런타임에서 가져오기
+            // 아래 코드를 좀 더 일반적인 코드로 추상화하기 ClassLoader
+            // java의 package는 directoryName
+            // package . => ClassLoader.getSystemClassLoader().getResourceAsStream("packageName");
+            // 파일을 읽은 다음에
+
+            System.out.println("Start ClassLoader Test Start");
+
+            ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+            InputStream inputStream = systemClassLoader.getResourceAsStream("com/electronic/cat/springstudydefault");
+
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            String name = properties.getProperty("InjectedTestClass");
+
+            inputStream.close();
+
+            System.out.println("Start ClassLoader Test End");
+
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
@@ -63,6 +100,8 @@ public class ContainerBuilder {
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
