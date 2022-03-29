@@ -69,7 +69,6 @@ public class ContainerBuilder {
                 first2.get().invoke(node2);
             }
 
-
             classLoaderFakeDI("com.electronic.cat.springstudydefault");
 
 
@@ -115,22 +114,29 @@ public class ContainerBuilder {
             Stream<String> streamOfString = new BufferedReader(inputStreamReader).lines();
 
             List<String> classList =  streamOfString.collect(Collectors.toList()); // 리스트
-            String className = packageName + "." + classList.get(0);
-
-            Class<?> loadedClass = ClassLoader.getSystemClassLoader().loadClass(className);
-
-            Object ins = loadedClass.getConstructor().newInstance();
 
 
-            //////////
-            Properties properties = new Properties();
-            properties.load(inputStream);
+            String className = packageName + "." + classList.get(3).replace(".class" , "");
 
-            String name = properties.getProperty("InjectedTestClass");
-            inputStream.close();
+            Class<?> testClass = Class.forName(className);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            // 자바 런타임에서 객체 생성
+            Constructor<?> testConstructor = testClass.getConstructor();
+            System.out.println("Class.forName : " + testConstructor.getName());
+
+            Object node = testConstructor.newInstance();
+            Annotation[] annotations = node.getClass().getAnnotations();
+            Optional<Method> first = Arrays.stream(node.getClass().getMethods()) //생성된 오브젝트에서 메서드 가져온다음
+                    .filter(method -> Arrays.stream(method.getAnnotations()).anyMatch(annotation -> annotation.annotationType() == PostConstruct.class)).findFirst();
+            // first가 있으면 여기서 호출해준다.
+            // 조립
+            if ( first.isPresent()) {
+                first.get().invoke(node);
+            }
+
+
+
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
